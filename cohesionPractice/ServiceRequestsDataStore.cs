@@ -32,7 +32,7 @@ namespace cohesionPractice
                     Id = new Guid("727b376b-79ae-498e-9cff-a9f51b848ea5"),
                     BuildingCode = "ACH",
                     Description = "Take me home country roads cause It is freezing cold in here! So turn down the AC!",
-                    CurrentStatus = (CurrentStatusDTO)3,
+                    CurrentStatus = (CurrentStatusDTO)2,
                     CreatedBy = "John Denver",
                     CreatedDate = new DateTime(2020,09,01,14,01,23,122),
                     LastModifiedBy = "Jane Tech support",

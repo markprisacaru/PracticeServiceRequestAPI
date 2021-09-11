@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
+using cohesionPractice.Services;
 
 namespace cohesionPractice
 {
@@ -28,10 +29,7 @@ namespace cohesionPractice
             }
             
             );
-            
-
-
-
+            services.AddTransient<FakeMailService>();
                 /*services.AddControllers().AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());

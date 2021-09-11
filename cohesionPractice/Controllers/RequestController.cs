@@ -1,10 +1,15 @@
 ﻿using cohesionPractice.Models;
+using cohesionPractice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using Twilio;
+using Twilio.Types;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace cohesionPractice.Controllers
 {
@@ -15,13 +20,17 @@ namespace cohesionPractice.Controllers
     public class RequestController : ControllerBase
     {
         private readonly ILogger<RequestController> _logger;
+        private FakeMailService _emailService;
 
-        public RequestController(ILogger<RequestController> logger)
+        public RequestController(ILogger<RequestController> logger, FakeMailService emailService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
 
         }
+
+
+
         [HttpGet]
         public IActionResult GetRequests()
         {
@@ -115,12 +124,28 @@ namespace cohesionPractice.Controllers
                 serviceRequest.CurrentStatus = requestToReturn.CurrentStatus;
                 _logger.LogInformation($"There was no status code given for request with {Id}. Defaulting back to the previous status");
             }
+            
             else { requestToReturn.CurrentStatus = serviceRequest.CurrentStatus; }
             
             requestToReturn.CurrentStatus = serviceRequest.CurrentStatus;
 
 
-            return Ok();
+            if (serviceRequest.CurrentStatus == (CurrentStatusDTO)3 )
+            {
+                _emailService.Send("Serice Request has been completed", $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}");
+
+                TwilioClient.Init("AC33962bf7ecad411fc660cd1efa991381", "fa29415f6e5e1fc344d24e9ebe326fd8");
+
+                var message = MessageResource.Create(
+                    body: $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}",
+                    from: new Twilio.Types.PhoneNumber("+15128723368"),
+                    to: new Twilio.Types.PhoneNumber("+13125938089")
+                );
+                
+
+            }
+
+                return Ok();
             
         }
 
