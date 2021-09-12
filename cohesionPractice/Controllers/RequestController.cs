@@ -156,7 +156,7 @@ namespace cohesionPractice.Controllers
                         var message = MessageResource.Create(
                             body: $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}",
                             from: new Twilio.Types.PhoneNumber("+15128723368"),
-                            to: new Twilio.Types.PhoneNumber("+13125938089")
+                            to: new Twilio.Types.PhoneNumber("+xxxxxxxxxxx")
                         );*/
 
 
