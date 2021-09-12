@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using cohesionPractice.Entities;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace cohesionPractice.Models
+namespace cohesionPractice.Entities
 {
-    public class ServiceRequestCreation
+    public class ServiceRequestCreationEntity
     {
 
-            public Guid Id { get; set; }
+
             [Required(ErrorMessage = "you should provide a building code")]
             public string BuildingCode { get; set; }
             [MaxLength(500)]
@@ -25,7 +23,8 @@ namespace cohesionPractice.Models
             public DateTime LastModifiedDate { get; set; }
 
 
-        
+
+
 
         
     }

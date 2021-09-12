@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Twilio;
 using Twilio.Types;
 using Twilio.Rest.Api.V2010.Account;
+using Microsoft.Extensions.Configuration;
+using AutoMapper;
 
 namespace cohesionPractice.Controllers
 {
@@ -19,76 +21,69 @@ namespace cohesionPractice.Controllers
     [Route("api/servicerequest")]
     public class RequestController : ControllerBase
     {
+        private readonly IConfiguration _config;
+        private readonly IMapper _mapper;
         private readonly ILogger<RequestController> _logger;
-        private FakeMailService _emailService;
+        private IFakeMailService _emailService;
 
-        public RequestController(ILogger<RequestController> logger, FakeMailService emailService)
+        private readonly IServiceRequestRepository _serviceRequestRepository;
+        public RequestController(ILogger<RequestController> logger, IFakeMailService emailService, IConfiguration iConfig, IServiceRequestRepository serviceRequestRepository, IMapper mapper)
         {
+            _serviceRequestRepository = serviceRequestRepository ?? throw new ArgumentNullException(nameof(serviceRequestRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _config = iConfig;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+
 
         }
 
 
 
         [HttpGet]
-        public IActionResult GetRequests()
+        public ActionResult GetRequests()
         {
 
-            var requestsToReturn = ServiceRequestsDataStore.Current.ServiceRequests;
+            var requestsEntities = _serviceRequestRepository.GetServiceRequests();
+            var requestsToReturn = _mapper.Map<IEnumerable<ServiceRequest>>(requestsEntities);
             //check if the return contains objects
-            if (requestsToReturn.Count == 0 || requestsToReturn == null)
-            {
-                
-                return NoContent();
-            }
-
-            return Ok(ServiceRequestsDataStore.Current.ServiceRequests);
-
-            //return new JsonResult(ServiceRequestsDataStore.Current.ServiceRequests);
-
+            
+            return Ok(requestsToReturn);
         }
 
         [HttpGet("{id}", Name ="GetServiceRequest")]
         public IActionResult GetRequest(Guid Id)
         {
-            try
+            var serviceRequestEntity = _serviceRequestRepository.GetServiceRequest(Id);
+               
+            if (serviceRequestEntity == null)
             {
-                //throw new Exception("Example Exception");
-               var requestToReturn = ServiceRequestsDataStore.Current.ServiceRequests.FirstOrDefault(r => r.Id == Id);
-                            // check if the object exists
-                            if (requestToReturn == null)
-                            {
-                                _logger.LogInformation($"Service request {Id} wasnt found when accessing the database");
-                                return NotFound();
-                            }
-
-                            return Ok(requestToReturn);
+                _logger.LogInformation($"Service request {Id} wasnt found when accessing the database");
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                _logger.LogCritical($"Exception while getting Service request with {Id} has occured", ex);
-                return StatusCode(500, "a problem has happened while handling your request.");
-            }
+           
+            var requestToReturn = _mapper.Map<ServiceRequest>(serviceRequestEntity);
 
-            
-
+           
+            return Ok(requestToReturn);
+                //_logger.LogCritical($"Exception while getting Service request with {Id} has occured", ex);
+                // StatusCode(500, "a problem has happened while handling your request.");
         }
+
+                
+        
 
         [HttpPost]
         public IActionResult CreateServiceRequest([FromBody] ServiceRequestCreation serviceRequest)
         {
-            //var requestsToCreate = ServiceRequestsDataStore.Current.ServiceRequests;
-            //var maxServiceRequestId = ServiceRequestsDataStore.Current.ServiceRequests.Max(p => p.Id);
 
-
-            var finalServiceRequest = new ServiceRequest()
+            var manualMap = new Entities.ServiceRequest()
             {
                 //assign new id, id should never be assigned by people 
                 Id = Guid.NewGuid(),
                 BuildingCode = serviceRequest.BuildingCode,
                 Description = serviceRequest.Description,
-                CurrentStatus = (CurrentStatusDTO)1,
+                CurrentStatus = (Entities.CurrentStatusDTO)(CurrentStatusDTO)1,
                 CreatedBy = serviceRequest.CreatedBy,
                 //logical flow that when you create the ticket is the date used
                 CreatedDate = DateTime.Now,
@@ -96,71 +91,100 @@ namespace cohesionPractice.Controllers
                 LastModifiedDate = DateTime.Now
             };
 
+            var finalServiceRequest = //manualMap;
+                                      _mapper.Map<Entities.ServiceRequest>(manualMap);
 
-            ServiceRequestsDataStore.Current.ServiceRequests.Add(finalServiceRequest);
 
-            return CreatedAtRoute("GetServiceRequest", new { id = finalServiceRequest.Id }, finalServiceRequest);
+
+
+            _serviceRequestRepository.AddServiceRequest(finalServiceRequest);
+            _serviceRequestRepository.Save();
+            var creatredRequest = _mapper.Map<Models.ServiceRequest>(finalServiceRequest);
+
+            return CreatedAtRoute("GetServiceRequest", new { id = creatredRequest.Id }, creatredRequest);
         }
 
 
         [HttpPut("{id}")]
         public IActionResult UpdateRequest(Guid Id, [FromBody] ServiceRequestUpdate serviceRequest)
         {
+            //pulll config info from appsettings.json
+            string user = _config.GetSection("textAPIsettings").GetSection("username").Value;
+            string sid = _config.GetSection("textAPIsettings").GetSection("sid").Value;
+
             if (!ModelState.IsValid){ return BadRequest(ModelState); }
-            var requestToReturn = ServiceRequestsDataStore.Current.ServiceRequests.FirstOrDefault(r => r.Id == Id);
+
+
+            var requestToReturn = _serviceRequestRepository.GetServiceRequest(Id);
             // check if the object exists
-            if (requestToReturn == null)
+            if (!_serviceRequestRepository.ServiceRequestExists(Id))
             {
                 return NotFound();
             }
+
+            var serviceRequestEntity = _serviceRequestRepository.GetServiceRequest(Id);
+            
+
+
             requestToReturn.Description = serviceRequest.Description;
             requestToReturn.BuildingCode = serviceRequest.BuildingCode;
             requestToReturn.LastModifiedBy = serviceRequest.LastModifiedBy;
             requestToReturn.LastModifiedDate = DateTime.Now;
-           
+            serviceRequestEntity = _mapper.Map<Entities.ServiceRequest>(serviceRequest);
+            _mapper.Map(requestToReturn, serviceRequestEntity);
+
             //if no status code is returned then the old one is kept
-            if (serviceRequest.CurrentStatus == 0)
-            { 
-                serviceRequest.CurrentStatus = requestToReturn.CurrentStatus;
+            if (serviceRequestEntity.CurrentStatus == 0)
+            {
+                serviceRequestEntity.CurrentStatus = requestToReturn.CurrentStatus;
                 _logger.LogInformation($"There was no status code given for request with {Id}. Defaulting back to the previous status");
             }
             
-            else { requestToReturn.CurrentStatus = serviceRequest.CurrentStatus; }
+            else { requestToReturn.CurrentStatus = serviceRequestEntity.CurrentStatus; }
             
-            requestToReturn.CurrentStatus = serviceRequest.CurrentStatus;
+            requestToReturn.CurrentStatus = serviceRequestEntity.CurrentStatus;
 
 
             if (serviceRequest.CurrentStatus == (CurrentStatusDTO)3 )
-            {
-                _emailService.Send("Serice Request has been completed", $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}");
+                        {
+                            _emailService.Send("Service Request has been completed", $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}");
 
-                TwilioClient.Init("AC33962bf7ecad411fc660cd1efa991381", "fa29415f6e5e1fc344d24e9ebe326fd8");
+                        //text service disabled for dev since it costs money turn on during demo
+                        /* 
+                        TwilioClient.Init(user, sid);
 
-                var message = MessageResource.Create(
-                    body: $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}",
-                    from: new Twilio.Types.PhoneNumber("+15128723368"),
-                    to: new Twilio.Types.PhoneNumber("+13125938089")
-                );
-                
+                        var message = MessageResource.Create(
+                            body: $"Service Request with Id of {requestToReturn.Id} has been completed by {requestToReturn.LastModifiedBy} on {requestToReturn.LastModifiedDate}",
+                            from: new Twilio.Types.PhoneNumber("+15128723368"),
+                            to: new Twilio.Types.PhoneNumber("+13125938089")
+                        );*/
+
+
+
+
 
             }
+            _mapper.Map(requestToReturn, serviceRequestEntity);
+            _serviceRequestRepository.UpdatePointOfInterestForCity(Id, serviceRequestEntity);
 
-                return Ok();
+            _serviceRequestRepository.Save();
+
+            return Ok();
             
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteRequest(Guid Id)
         {
-            if (!ModelState.IsValid) { return BadRequest(ModelState); }
-            var requestToDelete = ServiceRequestsDataStore.Current.ServiceRequests.FirstOrDefault(r => r.Id == Id);
             // check if the object exists
-            if (requestToDelete == null)
+            if (!_serviceRequestRepository.ServiceRequestExists(Id))
             {
                 return NotFound();
             }
-
-            ServiceRequestsDataStore.Current.ServiceRequests.Remove(requestToDelete);
+            var serviceRequestEntity = _serviceRequestRepository.GetServiceRequest(Id);
+            _serviceRequestRepository.DeleteServiceRequest(serviceRequestEntity);
+            _serviceRequestRepository.Save();
+            
             return Ok();
         }
 

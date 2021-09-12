@@ -1,0 +1,467 @@
+{
+	"info": {
+		"_postman_id": "4021f38b-2e3c-4618-a32e-95f1dad69ca2",
+		"name": "CohesionRequests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get servicerequest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns OK\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Get request returns OK\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.ok;\r",
+							"     pm.response.to.be.withBody;\r",
+							"     pm.response.to.be.json;\r",
+							"}\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest"
+					],
+					"query": [
+						{
+							"key": "Accept",
+							"value": "application/xml",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"ID is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"727b376b-79ae-498e-9cff-a9f51b848ea4\");\r",
+							"});\r",
+							"pm.test(\"Get request returns OK\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Get request returns proper item and status\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.ok;\r",
+							"     pm.response.to.be.withBody;\r",
+							"     pm.response.to.be.json;\r",
+							"}\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a9f51b848ea4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a9f51b848ea4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "request by id bad id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns notFound\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"Get request returns info\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(404);\r",
+							"    pm.response.to.be.notFound;\r",
+							"}\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a1f51b848ea4",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a1f51b848ea4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete request by id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns notFound\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"pm.test(\"Get request returns info\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(201);\r",
+							"    pm.response.to.be.success;\r",
+							"}\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a9f51b848ea5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a9f51b848ea5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete request by id  BADID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns notFound\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"Get request returns info\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(404);\r",
+							"    pm.response.to.be.notFound;\r",
+							"}\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a9f51b8481111",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a9f51b8481111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateRequest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns Created\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"pm.test(\"Successful POST request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([201, 202]);\r",
+							"});\r",
+							"pm.test(\"Status code name has string\", function () {\r",
+							"    pm.response.to.have.status(\"Created\");\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\" TEST TEST\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \r\n        \"buildingCode\": \"ACH\",\r\n        \"description\": \" TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST \",\r\n        \"currentStatus\": 1,\r\n        \"createdBy\": \"TEST TEST\",\r\n        \"lastModifiedBy\": \"TEST TEST TEST\"\r\n    }"
+				},
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateRequest Invalid data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns 400\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"pm.test(\"Successful POST request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r",
+							"});\r",
+							"pm.test(\"Status code name has string\", function () {\r",
+							"    pm.response.to.have.status(\"Bad Request\");\r",
+							"});\r",
+							"pm.test(\"Body matches string\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"you should provide a Description\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \r\n        \"buildingCode\": \"COH\",\r\n        \"createdBy\": \"Tester\",\r\n        \"lastModifiedBy\": \"Tester\",\r\n        \"invalid field\" : \"1\"\r\n    }"
+				},
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Request no status",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"buildingCode\": \"COH\",\r\n    \"description\": \"updated test\",\r\n    \"lastModifiedBy\": \"updated tester\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a9f51b848ea5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a9f51b848ea5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Request with status",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n        \r\n        \"buildingCode\": \"COH\",\r\n        \"description\": \"updated test\",\r\n        \"currentStatus\": 3,\r\n        \"lastModifiedBy\": \"updated tester\"\r\n    }"
+				},
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a9f51b848ea5",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a9f51b848ea5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update request by id  BADID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Get request returns notFound\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"pm.test(\"Get request returns info\", function()\r",
+							"{\r",
+							"    //make assertion\r",
+							"    pm.response.to.have.status(404);\r",
+							"    pm.response.to.be.notFound;\r",
+							"}\r",
+							");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"buildingCode\": \"COH\",\r\n    \"description\": \"updated test\",\r\n    \"lastModifiedBy\": \"updated tester\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:1028/api/servicerequest/727b376b-79ae-498e-9cff-a9f51b8481111",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "1028",
+					"path": [
+						"api",
+						"servicerequest",
+						"727b376b-79ae-498e-9cff-a9f51b8481111"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
